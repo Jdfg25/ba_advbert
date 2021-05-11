@@ -264,13 +264,13 @@ def main():
             raw_datasets["validation"] = load_dataset(
                 args.dataset_name,
                 args.dataset_config_name,
-                split=f"train[:{str(args.validation_split_percentage * args.total_split_percentage / 100)}%]",
+                split=f"train[:{str(int(args.validation_split_percentage * args.total_split_percentage / 100))}%]",
                 cache_dir=args.dataset_dir,
             )
             raw_datasets["train"] = load_dataset(
                 args.dataset_name,
                 args.dataset_config_name,
-                split=f"train[{str(args.validation_split_percentage * args.total_split_percentage / 100)}%:]",
+                split=f"train[{str(int(args.validation_split_percentage * args.total_split_percentage / 100))}%:]",
                 cache_dir=args.dataset_dir,
             )
     else:

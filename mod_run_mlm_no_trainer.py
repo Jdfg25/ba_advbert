@@ -262,20 +262,20 @@ def main():
            cache_dir=args.dataset_dir
         )
         if "validation" not in raw_datasets.keys():
-            split_percentage = int(args.validation_split_percentage * int(args.total_split_percentage) / 100)
-            if split_percentage < 1:
-                split_percentage = 1
+            resized_validation_split_percentage = int(args.validation_split_percentage * int(args.total_split_percentage) / 100)
+            if resized_validation_split_percentage < 1:
+                resized_validation_split_percentage = 1
 
             raw_datasets["validation"] = load_dataset(
                 args.dataset_name,
                 args.dataset_config_name,
-                split=f"train[:{split_percentage}%]",
+                split=f"train[:{resized_validation_split_percentage}%]",
                 cache_dir=args.dataset_dir,
             )
             raw_datasets["train"] = load_dataset(
                 args.dataset_name,
                 args.dataset_config_name,
-                split=f"train[{split_percentage}%:]",
+                split=f"train[{resized_validation_split_percentage}%:{args.total_split_percentage}%]",
                 cache_dir=args.dataset_dir,
             )
     else:

@@ -27,6 +27,7 @@ import logging
 import math
 import os
 import random
+import platform
 
 import datasets
 import torch
@@ -187,7 +188,7 @@ def parse_args():
     parser.add_argument(
         "--dataset_dir",
         type=str,
-        default=None,
+        default="/Users/Jdfg/.cache/huggingface/datasets" if platform.system() == 'Windows' else "~/datasets",
         help="Location of a custom arrow dataset",
     )
 
@@ -254,18 +255,22 @@ def main():
     # download the dataset.
     if args.dataset_name is not None:
         # Downloading and loading a dataset from the hub.
-        raw_datasets = load_dataset(args.dataset_name, args.dataset_config_name, cache_dir=args.dataset_dir)
+        raw_datasets = load_dataset(
+            args.dataset_name,
+            args.dataset_config_name,
+           cache_dir=args.dataset_dir
+        )
         if "validation" not in raw_datasets.keys():
             raw_datasets["validation"] = load_dataset(
                 args.dataset_name,
                 args.dataset_config_name,
-                split=f"train[:{int(args.validation_split_percentage * args.total_split_percentage / 100)}%]",
+                split=f"train[:{str(args.validation_split_percentage * args.total_split_percentage / 100)}%]",
                 cache_dir=args.dataset_dir,
             )
             raw_datasets["train"] = load_dataset(
                 args.dataset_name,
                 args.dataset_config_name,
-                split=f"train[{int(args.validation_split_percentage * args.total_split_percentage / 100)}%:]",
+                split=f"train[{str(args.validation_split_percentage * args.total_split_percentage / 100)}%:]",
                 cache_dir=args.dataset_dir,
             )
     else:

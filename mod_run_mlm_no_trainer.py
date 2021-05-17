@@ -195,6 +195,7 @@ def parse_args():
 
     parser.add_argument(
         "--total_split_percentage",
+        type=int,
         default=100,
         help="The percentage of the dataset used ",
     )
@@ -262,20 +263,27 @@ def main():
            cache_dir=args.dataset_dir
         )
         if "validation" not in raw_datasets.keys():
-            resized_validation_split_percentage = int(args.validation_split_percentage * int(args.total_split_percentage) / 100)
-            if resized_validation_split_percentage < 1:
-                resized_validation_split_percentage = 1
+            dataset_length = len(raw_datasets['train'])
+            validation_samples = int(round(
+                args.validation_split_percentage / 100 * args.total_split_percentage / 100 * dataset_length
+            ))
+            total_samples = int(round(
+                args.total_split_percentage / 100 * dataset_length
+            ))
+            print(f'Validation samples: {validation_samples}')
+            print(f'Total samples: {total_samples}')
+            print(f'All samples: {dataset_length}')
 
             raw_datasets["validation"] = load_dataset(
                 args.dataset_name,
                 args.dataset_config_name,
-                split=f"train[:{resized_validation_split_percentage}%]",
+                split=f"train[:{validation_samples}]",
                 cache_dir=args.dataset_dir,
             )
             raw_datasets["train"] = load_dataset(
                 args.dataset_name,
                 args.dataset_config_name,
-                split=f"train[{resized_validation_split_percentage}%:{args.total_split_percentage}%]",
+                split=f"train[{validation_samples}:{total_samples}]",
                 cache_dir=args.dataset_dir,
             )
     else:

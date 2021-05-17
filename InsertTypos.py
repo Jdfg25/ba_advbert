@@ -5,24 +5,36 @@ import random
 characters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't',
               'u', 'v', 'w', 'x', 'y', 'z', 'ä', 'ö', 'ü', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
 
+w = -1
 
-def insert_typos(dataset_len, true_prob):
-    wikipedia_de = datasets.load_dataset(path='wikipedia', name='20200501.de', split=f'train[0:{dataset_len}]')
-    print(wikipedia_de[0]['text'])
 
-    for i, sample in enumerate(wikipedia_de):
-        tmp_title = sample['title']
-        tmp_text = sample['text']
+def insert_typos(dataset, true_prob):
+    tmp_title = []
+    tmp_text = []
+
+    for i, sample in enumerate(dataset):
+        tmp_title.append(sample['title'])
+        tmp_text.append(sample['text'])
         for j, char in enumerate(sample['title']):
             if numpy.random.choice(numpy.arange(0, 2), p=[1 - true_prob, true_prob]):
-                tmp_title = make_mistakes(random.randint(1, 5), j, tmp_title)
+                tmp_title[i] = make_mistakes(random.randint(1, 5), j, tmp_title[i])
         for k, char in enumerate(sample['text']):
             if numpy.random.choice(numpy.arange(0, 2), p=[1 - true_prob, true_prob]):
-                tmp_text = make_mistakes(random.randint(1, 5), k, tmp_text)
+                tmp_text[i] = make_mistakes(random.randint(1, 5), k, tmp_text[i])
 
-    wikipedia_de = wikipedia_de.map(lambda example: {'title': tmp_title, 'text': tmp_text})
+    # dataset = dataset.map(lambda example: {'title': tmp_title[i], 'text': tmp_text[i]})
 
-    return wikipedia_de
+    def update_dataset(example):
+        global w
+        w = w + 1
+        print(w)
+        example['title'] = tmp_title[w]
+        example['text'] = tmp_text[w]
+        return example
+
+    dataset = dataset.map(update_dataset)
+
+    return dataset
 
 
 def make_mistakes(choice, i, org_sample):
@@ -61,6 +73,12 @@ def make_mistakes(choice, i, org_sample):
     return tmp_sample
 
 
+"""
 if __name__ == '__main__':
-    bad_wikipedia_de = insert_typos(1, 0.05)
-    print(bad_wikipedia_de[0]['text'])
+    wikipedia_de = datasets.load_dataset(path='wikipedia', name='20200501.de', split=f'train[:5]')
+    print(wikipedia_de[1]['text'])
+    # print(wikipedia_de['title'])
+    bad_wikipedia_de = insert_typos(wikipedia_de, 0.05)
+    print(bad_wikipedia_de[1]['text'])
+    # print(bad_wikipedia_de['title'])
+"""

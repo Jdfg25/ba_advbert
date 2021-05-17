@@ -50,6 +50,7 @@ from transformers import (
     set_seed,
 )
 
+import InsertTypos
 
 logger = logging.getLogger(__name__)
 MODEL_CONFIG_CLASSES = list(MODEL_MAPPING.keys())
@@ -200,6 +201,13 @@ def parse_args():
         help="The percentage of the dataset used ",
     )
 
+    parser.add_argument(
+        "insert_typos",
+        type=bool,
+        default=False,
+        help="Insert typos into the dataset",
+    )
+
     args = parser.parse_args()
 
     # Sanity checks
@@ -260,8 +268,9 @@ def main():
         raw_datasets = load_dataset(
             args.dataset_name,
             args.dataset_config_name,
-           cache_dir=args.dataset_dir
+            cache_dir=args.dataset_dir
         )
+
         if "validation" not in raw_datasets.keys():
             dataset_length = len(raw_datasets['train'])
             validation_samples = int(round(
@@ -286,6 +295,10 @@ def main():
                 split=f"train[{validation_samples}:{total_samples}]",
                 cache_dir=args.dataset_dir,
             )
+
+            if args.insert_typos:
+                raw_datasets["validation"] = InsertTypos.insert_typos(raw_datasets["validation"], 0.05)
+                raw_datasets["train"] = InsertTypos.insert_typos(raw_datasets["train"], 0.05)
     else:
         data_files = {}
         if args.train_file is not None:

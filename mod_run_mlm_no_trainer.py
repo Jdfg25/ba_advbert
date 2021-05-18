@@ -202,7 +202,7 @@ def parse_args():
     )
 
     parser.add_argument(
-        "insert_typos",
+        "--insert_typos",
         type=bool,
         default=False,
         help="Insert typos into the dataset",

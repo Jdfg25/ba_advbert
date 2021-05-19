@@ -26,8 +26,6 @@ def insert_typos(dataset, true_prob):
             if numpy.random.choice(numpy.arange(0, 2), p=[1 - true_prob, true_prob]):
                 tmp_text[i] = make_mistakes(random.randint(1, 5), k, tmp_text[i])
 
-    # dataset = dataset.map(lambda example: {'title': tmp_title[i], 'text': tmp_text[i]})
-
     def update_dataset(example):
         global w
         w = w + 1

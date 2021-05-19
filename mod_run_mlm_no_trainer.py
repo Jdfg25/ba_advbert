@@ -283,22 +283,24 @@ def main():
             print(f'Total samples: {total_samples}')
             print(f'All samples: {dataset_length}')
 
-            raw_datasets["validation"] = load_dataset(
-                args.dataset_name,
-                args.dataset_config_name,
-                split=f"train[:{validation_samples}]",
-                cache_dir=args.dataset_dir,
-            )
-            raw_datasets["train"] = load_dataset(
-                args.dataset_name,
-                args.dataset_config_name,
-                split=f"train[{validation_samples}:{total_samples}]",
-                cache_dir=args.dataset_dir,
-            )
-
             if args.insert_typos:
-                raw_datasets["validation"] = InsertTypos.insert_typos(raw_datasets["validation"], 0.05)
-                raw_datasets["train"] = InsertTypos.insert_typos(raw_datasets["train"], 0.05)
+                raw_datasets["validation"] = load_dataset(
+                    args.dataset_name,
+                    args.dataset_config_name,
+                    split=f"train[:{validation_samples}]",
+                    cache_dir=args.dataset_dir,
+                )
+                raw_datasets["train"] = load_dataset(
+                    args.dataset_name,
+                    args.dataset_config_name,
+                    split=f"train[{validation_samples}:{total_samples}]",
+                    cache_dir=args.dataset_dir,
+                )
+            else:
+                raw_datasets["validation"].load_from_disk()
+                raw_datasets["train"].load_from_disk()
+                # raw_datasets["validation"] = InsertTypos.insert_typos(raw_datasets["validation"], 0.05)
+                # raw_datasets["train"] = InsertTypos.insert_typos(raw_datasets["train"], 0.05)
     else:
         data_files = {}
         if args.train_file is not None:

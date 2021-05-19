@@ -5,14 +5,18 @@ import random
 characters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't',
               'u', 'v', 'w', 'x', 'y', 'z', 'ä', 'ö', 'ü', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
 
-w = -1
+w: int
 
 
 def insert_typos(dataset, true_prob):
+    global w
+    w = -1
+
     tmp_title = []
     tmp_text = []
 
     for i, sample in enumerate(dataset):
+        print(i)
         tmp_title.append(sample['title'])
         tmp_text.append(sample['text'])
         for j, char in enumerate(sample['title']):
@@ -27,7 +31,6 @@ def insert_typos(dataset, true_prob):
     def update_dataset(example):
         global w
         w = w + 1
-        print(w)
         example['title'] = tmp_title[w]
         example['text'] = tmp_text[w]
         return example
@@ -75,10 +78,34 @@ def make_mistakes(choice, i, org_sample):
 
 """
 if __name__ == '__main__':
-    wikipedia_de = datasets.load_dataset(path='wikipedia', name='20200501.de', split=f'train[:5]')
-    print(wikipedia_de[1]['text'])
+    # wikipedia_de = datasets.load_dataset(path='wikipedia', name='20200501.de', split=f'train[:5]')
+    # print(wikipedia_de[1]['text'])
     # print(wikipedia_de['title'])
-    bad_wikipedia_de = insert_typos(wikipedia_de, 0.05)
-    print(bad_wikipedia_de[1]['text'])
+    # bad_wikipedia_de = insert_typos(wikipedia_de, 0.05)
+    # print(bad_wikipedia_de[1]['text'])
     # print(bad_wikipedia_de['title'])
+
+    validation_samples = 10
+    total_samples = 210
+
+    raw_datasets = datasets.load_dataset(
+        'wikipedia',
+        '20200501.de',
+    )
+
+    raw_datasets["validation"] = datasets.load_dataset(
+        'wikipedia',
+        '20200501.de',
+        split=f"train[:{validation_samples}]",
+    )
+    raw_datasets["train"] = datasets.load_dataset(
+        'wikipedia',
+        '20200501.de',
+        split=f"train[{validation_samples}:{total_samples}]",
+    )
+
+    raw_datasets["validation"] = insert_typos(raw_datasets["validation"], 0.05)
+    raw_datasets["train"] = insert_typos(raw_datasets["train"], 0.05)
+
+    print(raw_datasets["validation"]["title"])
 """

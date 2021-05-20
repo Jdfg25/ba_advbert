@@ -39,11 +39,7 @@ def generate_typo_dataset(total_split_percentage, validation_split_percentage=5)
 
 
 if __name__ == '__main__':
-    generate_typo_dataset(50)
-
-    dataset = datasets.load_from_disk('/tmp/wikipedia')
-
-    print(dataset)
+    generate_typo_dataset(10)
 
 
 

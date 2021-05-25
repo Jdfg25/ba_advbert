@@ -9,8 +9,10 @@ def clean_dataset(dataset):
 
     tmp = []
 
+    total_samples = len(dataset)
+
     for i, sample in enumerate(dataset):
-        print(f'Clean: {i}')
+        print(f'Clean: {i}/{total_samples}')
         tmp.append(sample['text'])
 
         try:

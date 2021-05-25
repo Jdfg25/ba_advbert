@@ -15,8 +15,10 @@ def insert_typos(dataset, true_prob):
     tmp_title = []
     tmp_text = []
 
+    total_samples = len(dataset)
+
     for i, sample in enumerate(dataset):
-        print(f'Typo: {i}')
+        print(f'Typo: {i}/{total_samples}')
         tmp_title.append(sample['title'])
         tmp_text.append(sample['text'])
         for j, char in enumerate(sample['title']):

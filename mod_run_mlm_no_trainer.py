@@ -284,6 +284,9 @@ def main():
             print(f'All samples: {dataset_length}')
 
             if not args.insert_typos:
+                raw_datasets["validation"].load_from_disk('/data/wikipedia_clean/validation')
+                raw_datasets["train"].load_from_disk('/data/wikipedia_clean/train')
+                """
                 raw_datasets["validation"] = load_dataset(
                     args.dataset_name,
                     args.dataset_config_name,
@@ -296,6 +299,7 @@ def main():
                     split=f"train[{validation_samples}:{total_samples}]",
                     cache_dir=args.dataset_dir,
                 )
+                """
             else:
                 raw_datasets["validation"].load_from_disk('/data/wikipedia_with_typos/validation')
                 raw_datasets["train"].load_from_disk('/data/wikipedia_with_typos/train')

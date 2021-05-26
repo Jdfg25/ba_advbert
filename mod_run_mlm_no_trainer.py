@@ -284,8 +284,8 @@ def main():
             print(f'All samples: {dataset_length}')
 
             if not args.insert_typos:
-                raw_datasets["validation"].load_from_disk('/data/wikipedia_clean/validation')
-                raw_datasets["train"].load_from_disk('/data/wikipedia_clean/train')
+                raw_datasets["validation"] = datasets.load_from_disk('/data/wikipedia_clean/validation')
+                raw_datasets["train"] = datasets.load_from_disk('/data/wikipedia_clean274/train')
                 """
                 raw_datasets["validation"] = load_dataset(
                     args.dataset_name,
@@ -301,8 +301,8 @@ def main():
                 )
                 """
             else:
-                raw_datasets["validation"].load_from_disk('/data/wikipedia_with_typos/validation')
-                raw_datasets["train"].load_from_disk('/data/wikipedia_with_typos/train')
+                raw_datasets["validation"] = datasets.load_from_disk('/data/wikipedia_with_typos/validation')
+                raw_datasets["train"] = datasets.load_from_disk('/data/wikipedia_with_typos/train')
                 # raw_datasets["validation"] = InsertTypos.insert_typos(raw_datasets["validation"], 0.05)
                 # raw_datasets["train"] = InsertTypos.insert_typos(raw_datasets["train"], 0.05)
     else:

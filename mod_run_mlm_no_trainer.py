@@ -285,7 +285,7 @@ def main():
 
             if not args.insert_typos:
                 raw_datasets["validation"] = datasets.load_from_disk('/data/wikipedia_clean/validation')
-                raw_datasets["train"] = datasets.load_from_disk('/data/wikipedia_clean274/train')
+                raw_datasets["train"] = datasets.load_from_disk('/data/wikipedia_clean/train')
                 """
                 raw_datasets["validation"] = load_dataset(
                     args.dataset_name,

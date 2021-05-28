@@ -1,4 +1,3 @@
-import datasets
 import numpy
 import random
 
@@ -74,14 +73,3 @@ def make_mistakes(choice, i, org_sample):
                          characters[random.randint(0, len(characters) - 1)]
 
     return tmp_sample
-
-
-"""
-if __name__ == '__main__':
-    wikipedia_de = datasets.load_dataset(path='wikipedia', name='20200501.de', split=f'train[:3]')
-    print(wikipedia_de[1]['text'])
-    # print(wikipedia_de['title'])
-    bad_wikipedia_de = insert_typos(wikipedia_de, 0.05)
-    print(bad_wikipedia_de[1]['text'])
-    # print(bad_wikipedia_de['title'])
-"""

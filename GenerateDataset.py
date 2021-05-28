@@ -60,7 +60,7 @@ def main():
     wikipedia_valid = CleanDataset.clean_dataset(wikipedia_valid)
     wikipedia_train = CleanDataset.clean_dataset(wikipedia_train)
 
-    if args.typos:
+    if args.insert_typos:
         wikipedia_valid = InsertTypos.insert_typos(wikipedia_valid, 0.01)
         wikipedia_train = InsertTypos.insert_typos(wikipedia_train, 0.01)
 

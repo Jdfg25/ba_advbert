@@ -1,5 +1,3 @@
-import datasets
-
 w: int
 
 
@@ -34,17 +32,3 @@ def clean_dataset(dataset):
     dataset = dataset.map(update_dataset)
 
     return dataset
-
-
-"""
-if __name__ == '__main__':
-    wikipedia = datasets.load_dataset(path='wikipedia', name='20200501.de', split=f'train[:10%]')
-    print(wikipedia_de[0]['text'])
-    clean_wikipedia = clean_dataset(wikipedia)
-    print(clean_wikipedia_de[0]['text'])
-    clean_wikipedia.save_to_disk('/data/wikipedia_with_typos')
-"""
-
-
-
-

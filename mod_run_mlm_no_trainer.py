@@ -196,7 +196,7 @@ def parse_args():
 
     parser.add_argument(
         "--total_split_percentage",
-        type=int,
+        type=float,
         default=100,
         help="The percentage of the dataset used ",
     )
@@ -303,8 +303,6 @@ def main():
             else:
                 raw_datasets["validation"] = datasets.load_from_disk('/data/wikipedia_with_typos/validation')
                 raw_datasets["train"] = datasets.load_from_disk('/data/wikipedia_with_typos/train')
-                # raw_datasets["validation"] = InsertTypos.insert_typos(raw_datasets["validation"], 0.05)
-                # raw_datasets["train"] = InsertTypos.insert_typos(raw_datasets["train"], 0.05)
     else:
         data_files = {}
         if args.train_file is not None:
@@ -537,6 +535,9 @@ def main():
                 outputs = model(**batch)
 
             loss = outputs.loss
+            # write loss to .txt file
+            with open('../losses.txt', 'a') as f:
+                f.write(f'Epoch {epoch} Batch {step} loss {loss}\n')
             losses.append(accelerator.gather(loss.repeat(args.per_device_eval_batch_size)))
 
         losses = torch.cat(losses)

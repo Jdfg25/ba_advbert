@@ -509,6 +509,8 @@ def main():
     progress_bar = tqdm(range(args.max_train_steps), disable=not accelerator.is_local_main_process)
     completed_steps = 0
 
+    loss_dir = 'no_typos' if not args.insert_typos else 'typos'
+
     for epoch in range(args.num_train_epochs):
         model.train()
         logger.info("New Epoch")
@@ -518,7 +520,7 @@ def main():
             loss = loss / args.gradient_accumulation_steps
 
             if accelerator.is_local_main_process:
-                with open('../losses_train.txt', 'a') as f:
+                with open(f'../loss_files/{loss_dir}/losses_train.txt', 'a') as f:
                     f.write(f'Epoch {epoch} Batch {step} loss {loss}\n')
 
             accelerator.backward(loss)
@@ -543,7 +545,7 @@ def main():
             losses.append(accelerator.gather(loss.repeat(args.per_device_eval_batch_size)))
 
             if accelerator.is_local_main_process:
-                with open('../losses_eval.txt', 'a') as f:
+                with open(f'../loss_files/{loss_dir}/losses_eval.txt', 'a') as f:
                     f.write(f'Epoch {epoch} Batch {step} loss {loss}\n')
 
         losses = torch.cat(losses)

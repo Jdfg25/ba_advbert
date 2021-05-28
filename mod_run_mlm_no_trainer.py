@@ -518,7 +518,7 @@ def main():
             loss = loss / args.gradient_accumulation_steps
 
             if accelerator.is_local_main_process:
-                with open('../losses_eval.txt', 'a') as f:
+                with open('../losses_train.txt', 'a') as f:
                     f.write(f'Epoch {epoch} Batch {step} loss {loss}\n')
 
             accelerator.backward(loss)

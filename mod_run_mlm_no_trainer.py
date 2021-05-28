@@ -516,6 +516,11 @@ def main():
             outputs = model(**batch)
             loss = outputs.loss
             loss = loss / args.gradient_accumulation_steps
+
+            if accelerator.is_local_main_process:
+                with open('../losses_eval.txt', 'a') as f:
+                    f.write(f'Epoch {epoch} Batch {step} loss {loss}\n')
+
             accelerator.backward(loss)
             if step % args.gradient_accumulation_steps == 0 or step == len(train_dataloader) - 1:
                 optimizer.step()
@@ -535,10 +540,11 @@ def main():
                 outputs = model(**batch)
 
             loss = outputs.loss
-            # write loss to .txt file
-            with open('../losses.txt', 'a') as f:
-                f.write(f'Epoch {epoch} Batch {step} loss {loss}\n')
             losses.append(accelerator.gather(loss.repeat(args.per_device_eval_batch_size)))
+
+            if accelerator.is_local_main_process:
+                with open('../losses_eval.txt', 'a') as f:
+                    f.write(f'Epoch {epoch} Batch {step} loss {loss}\n')
 
         losses = torch.cat(losses)
         losses = losses[: len(eval_dataset)]

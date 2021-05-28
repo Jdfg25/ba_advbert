@@ -1,10 +1,35 @@
+import argparse
 import datasets
 
 import CleanDataset
 import InsertTypos
 
 
-def generate_dataset(total_split_percentage, typos=False, validation_split_percentage=5,):
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--total_split_percentage",
+        type=float,
+        default=100,
+    )
+    parser.add_argument(
+        "--validation_split_percentage",
+        type=float,
+        default=5,
+    )
+    parser.add_argument(
+        "--insert_typos",
+        type=bool,
+        default=False,
+    )
+
+    args = parser.parse_args()
+    return args
+
+
+def main():
+    args = parse_args()
+
     wikipedia = datasets.load_dataset(
         'wikipedia',
         '20200501.de',
@@ -13,10 +38,10 @@ def generate_dataset(total_split_percentage, typos=False, validation_split_perce
 
     dataset_length = len(wikipedia['train'])
     validation_samples = int(round(
-        validation_split_percentage / 100 * total_split_percentage / 100 * dataset_length
+        args.validation_split_percentage / 100 * args.total_split_percentage / 100 * dataset_length
     ))
     total_samples = int(round(
-        total_split_percentage / 100 * dataset_length
+        args.total_split_percentage / 100 * dataset_length
     ))
 
     wikipedia_valid = datasets.load_dataset(
@@ -35,7 +60,7 @@ def generate_dataset(total_split_percentage, typos=False, validation_split_perce
     wikipedia_valid = CleanDataset.clean_dataset(wikipedia_valid)
     wikipedia_train = CleanDataset.clean_dataset(wikipedia_train)
 
-    if typos:
+    if args.typos:
         wikipedia_valid = InsertTypos.insert_typos(wikipedia_valid, 0.01)
         wikipedia_train = InsertTypos.insert_typos(wikipedia_train, 0.01)
 
@@ -47,4 +72,4 @@ def generate_dataset(total_split_percentage, typos=False, validation_split_perce
 
 
 if __name__ == '__main__':
-    generate_dataset(10)
+    main()

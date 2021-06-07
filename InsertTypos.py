@@ -7,7 +7,7 @@ characters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', '
 w: int
 
 
-def insert_typos(dataset, true_prob):
+def insert_typos(dataset, true_prob, exclude):
     global w
     w = -1
 
@@ -17,6 +17,8 @@ def insert_typos(dataset, true_prob):
     total_samples = len(dataset)
 
     for i, sample in enumerate(dataset):
+        if exclude and i % 3 == 0:
+            continue
         print(f'Typo: {i}/{total_samples-1}')
         tmp_title.append(sample['title'])
         tmp_text.append(sample['text'])
@@ -60,8 +62,14 @@ def make_mistakes(choice, i, org_sample):
                          org_sample[i] + \
                          org_sample[i + 2:]
         except IndexError:
-            tmp_sample = org_sample[:i] + \
-                         characters[random.randint(0, len(characters) - 1)]
+            try:
+                tmp_sample = org_sample[:i] + \
+                             org_sample[i + 1] + \
+                             org_sample[i]
+            except IndexError:
+                tmp_sample = org_sample[:i - 1] + \
+                             org_sample[i] + \
+                             org_sample[i - 1]
     # mistype
     else:
         try:

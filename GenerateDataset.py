@@ -19,8 +19,8 @@ def parse_args():
     )
     parser.add_argument(
         "--insert_typos",
-        type=bool,
-        default=False,
+        type=int,
+        default=0,
     )
 
     args = parser.parse_args()
@@ -60,15 +60,24 @@ def main():
     wikipedia_valid = CleanDataset.clean_dataset(wikipedia_valid)
     wikipedia_train = CleanDataset.clean_dataset(wikipedia_train)
 
-    if args.insert_typos:
-        wikipedia_valid = InsertTypos.insert_typos(wikipedia_valid, 0.01)
-        wikipedia_train = InsertTypos.insert_typos(wikipedia_train, 0.01)
+    if args.insert_typos == 0:
+        # clean dataset
+        wikipedia_valid.save_to_disk('/data/wikipedia_clean/validation')
+        wikipedia_train.save_to_disk('/data/wikipedia_clean/train')
+    elif args.insert_typos == 1:
+        # dataset with typos
+        wikipedia_valid = InsertTypos.insert_typos(wikipedia_valid, 0.01, False)
+        wikipedia_train = InsertTypos.insert_typos(wikipedia_train, 0.01, False)
 
         wikipedia_valid.save_to_disk('/data/wikipedia_with_typos/validation')
         wikipedia_train.save_to_disk('/data/wikipedia_with_typos/train')
     else:
-        wikipedia_valid.save_to_disk('/data/wikipedia_clean/validation')
-        wikipedia_train.save_to_disk('/data/wikipedia_clean/train')
+        # dataset with one third clean and two thirds typos
+        wikipedia_valid = InsertTypos.insert_typos(wikipedia_valid, 0.01, True)
+        wikipedia_train = InsertTypos.insert_typos(wikipedia_train, 0.01, True)
+
+        wikipedia_valid.save_to_disk('/data/wikipedia_with_typos_alt/validation')
+        wikipedia_train.save_to_disk('/data/wikipedia_with_typos_alt/train')
 
 
 if __name__ == '__main__':

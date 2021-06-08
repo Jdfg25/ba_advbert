@@ -109,7 +109,7 @@ def parse_args():
     parser.add_argument(
         "--use_slow_tokenizer",
         action="store_true",
-        help="If passed, will use a slow tokenizer (not backed by the 🤗 Tokenizers library).",
+        help="If passed, will use a slow tokenizer (not backed by the HuggingFace Tokenizers library).",
     )
     parser.add_argument(
         "--per_device_train_batch_size",
@@ -208,6 +208,13 @@ def parse_args():
         help="Insert typos into the dataset",
     )
 
+    parser.add_argument(
+        "--train_from_scratch",
+        type=bool,
+        default=True,
+        help="Train only with the raw config or load a model with pretrained weights from model_name_or_path"
+    )
+
     args = parser.parse_args()
 
     # Sanity checks
@@ -229,6 +236,8 @@ def parse_args():
 
 def main():
     args = parse_args()
+
+    args.output_dir = "/model/bert-base-german-no-typos" if not args.insert_typos else "/model/bert-base-german-typos"
 
     # Initialize the accelerator. We will let the accelerator handle device placement for us in this example.
     accelerator = Accelerator()
@@ -272,34 +281,9 @@ def main():
         )
 
         if "validation" not in raw_datasets.keys():
-            dataset_length = len(raw_datasets['train'])
-            validation_samples = int(round(
-                args.validation_split_percentage / 100 * args.total_split_percentage / 100 * dataset_length
-            ))
-            total_samples = int(round(
-                args.total_split_percentage / 100 * dataset_length
-            ))
-            print(f'Validation samples: {validation_samples}')
-            print(f'Total samples: {total_samples}')
-            print(f'All samples: {dataset_length}')
-
             if not args.insert_typos:
                 raw_datasets["validation"] = datasets.load_from_disk('/data/wikipedia_clean/validation')
                 raw_datasets["train"] = datasets.load_from_disk('/data/wikipedia_clean/train')
-                """
-                raw_datasets["validation"] = load_dataset(
-                    args.dataset_name,
-                    args.dataset_config_name,
-                    split=f"train[:{validation_samples}]",
-                    cache_dir=args.dataset_dir,
-                )
-                raw_datasets["train"] = load_dataset(
-                    args.dataset_name,
-                    args.dataset_config_name,
-                    split=f"train[{validation_samples}:{total_samples}]",
-                    cache_dir=args.dataset_dir,
-                )
-                """
             else:
                 raw_datasets["validation"] = datasets.load_from_disk('/data/wikipedia_with_typos/validation')
                 raw_datasets["train"] = datasets.load_from_disk('/data/wikipedia_with_typos/train')
@@ -338,7 +322,7 @@ def main():
             "You can do it from another script, save it, and load it from here, using --tokenizer_name."
         )
 
-    if not 1:  # args.model_name_or_path:
+    if not args.train_from_scratch: # not 1:  # args.model_name_or_path:
         logger.info("Training pretrained model")
         model = AutoModelForMaskedLM.from_pretrained(
             args.model_name_or_path,

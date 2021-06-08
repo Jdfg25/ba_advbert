@@ -209,10 +209,10 @@ def parse_args():
     )
 
     parser.add_argument(
-        "--train_from_scratch",
+        "--train_pretrained",
         type=bool,
-        default=True,
-        help="Train only with the raw config or load a model with pretrained weights from model_name_or_path"
+        default=False,
+        help="Train a model with pretrained weights from model_name_or_path or train only with the raw config"
     )
 
     args = parser.parse_args()
@@ -322,7 +322,7 @@ def main():
             "You can do it from another script, save it, and load it from here, using --tokenizer_name."
         )
 
-    if not args.train_from_scratch: # not 1:  # args.model_name_or_path:
+    if args.train_pretrained:  # not 1:  # args.model_name_or_path:
         logger.info("Training pretrained model")
         model = AutoModelForMaskedLM.from_pretrained(
             args.model_name_or_path,

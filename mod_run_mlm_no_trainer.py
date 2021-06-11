@@ -237,7 +237,9 @@ def parse_args():
 def main():
     args = parse_args()
 
-    args.output_dir = "/model/bert-base-german-no-typos" if not args.insert_typos else "/model/bert-base-german-typos"
+    if args.output_dir is None:
+        args.output_dir = "/model/bert-base-german-no-typos" if not args.insert_typos \
+            else "/model/bert-base-german-typos"
 
     # Initialize the accelerator. We will let the accelerator handle device placement for us in this example.
     accelerator = Accelerator()

@@ -517,7 +517,7 @@ def main():
                         if torch.argmax(word_logits) == batch.labels[i][j]:
                             tmp_right_preds += 1
             if accelerator.is_local_main_process:
-                with open(f'../accuracy/accuracy_train_per_batch.txt', 'a') as f:
+                with open(f'../accuracy_files/{loss_dir}/accuracy_train_per_batch.txt', 'a') as f:
                     f.write(f'Epoch {epoch} Batch {step} accuracy {100 * tmp_right_preds / tmp_real_labels}\n')
             real_labels += tmp_real_labels
             right_preds += tmp_right_preds
@@ -540,7 +540,7 @@ def main():
         # compute train accuracy per epoch
         accuracy = 100 * right_preds / real_labels
         if accelerator.is_local_main_process:
-            with open(f'../accuracy/accuracy_train_per_epoch.txt', 'a') as f:
+            with open(f'../accuracy_files/{loss_dir}/accuracy_train_per_epoch.txt', 'a') as f:
                 f.write(f'Right Predicitons {right_preds} Masked Labels {real_labels}\n')
                 f.write(f'Epoch {epoch} accuracy {accuracy}\n')
 
@@ -566,7 +566,7 @@ def main():
                         if torch.argmax(word_logits) == batch.labels[i][j]:
                             tmp_right_preds += 1
             if accelerator.is_local_main_process:
-                with open(f'../accuracy/accuracy_eval_per_batch.txt', 'a') as f:
+                with open(f'../accuracy_files/{loss_dir}/accuracy_eval_per_batch.txt', 'a') as f:
                     f.write(f'Epoch {epoch} Batch {step} accuracy {100 * tmp_right_preds / tmp_real_labels}\n')
             real_labels += tmp_real_labels
             right_preds += tmp_right_preds
@@ -578,7 +578,7 @@ def main():
         # compute eval accuracy per epoch
         accuracy = 100 * right_preds / real_labels
         if accelerator.is_local_main_process:
-            with open(f'../accuracy/accuracy_eval_per_epoch.txt', 'a') as f:
+            with open(f'../accuracy_files/{loss_dir}/accuracy_eval_per_epoch.txt', 'a') as f:
                 f.write(f'Right Predicitons {right_preds} Masked Labels {real_labels}\n')
                 f.write(f'Epoch {epoch} accuracy {accuracy}\n')
 

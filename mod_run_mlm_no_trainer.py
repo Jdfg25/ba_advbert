@@ -508,10 +508,12 @@ def main():
             loss = loss / args.gradient_accumulation_steps
 
             # compute train accuracy per batch
-            if not 1:  # accelerator.is_local_main_process:
+            if accelerator.is_local_main_process:
                 tmp_real_labels = 0
                 tmp_right_preds = 0
                 for i, sent_logits in enumerate(outputs.logits):
+                    if i >= 1:
+                        break
                     for j, word_logits in enumerate(sent_logits):
                         if batch.labels[i][j] != -100:
                             tmp_real_labels += 1
@@ -538,7 +540,7 @@ def main():
                 break
 
         # compute train accuracy per epoch
-        if not 1:  # if accelerator.is_local_main_process:
+        if accelerator.is_local_main_process:
             accuracy = 100 * right_preds / real_labels
             with open(f'../accuracy_files/{loss_dir}/accuracy_train_per_epoch.txt', 'a') as f:
                 f.write(f'Right Predicitons {right_preds} Masked Labels {real_labels}\n')
@@ -557,10 +559,12 @@ def main():
             losses.append(accelerator.gather(loss.repeat(args.per_device_eval_batch_size)))
 
             # compute eval accuracy per batch
-            if not 1:  # if accelerator.is_local_main_process:
+            if accelerator.is_local_main_process:
                 tmp_real_labels = 0
                 tmp_right_preds = 0
                 for i, sent_logits in enumerate(outputs.logits):
+                    if i >= 1:
+                        break
                     for j, word_logits in enumerate(sent_logits):
                         if batch.labels[i][j] != -100:
                             tmp_real_labels += 1
@@ -576,7 +580,7 @@ def main():
                     f.write(f'Epoch {epoch} Batch {step} loss {loss}\n')
 
         # compute eval accuracy per epoch
-        if not 1:  # if accelerator.is_local_main_process:
+        if accelerator.is_local_main_process:
             accuracy = 100 * right_preds / real_labels
             with open(f'../accuracy_files/{loss_dir}/accuracy_eval_per_epoch.txt', 'a') as f:
                 f.write(f'Right Predicitons {right_preds} Masked Labels {real_labels}\n')

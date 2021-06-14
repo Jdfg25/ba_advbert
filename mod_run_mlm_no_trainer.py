@@ -508,9 +508,9 @@ def main():
             # count overall and right predictions for train accuracy
             if accelerator.is_local_main_process:
                 for i, word_logits in enumerate(outputs.logits[0]):
-                    if batch.labels[i] != -100:
+                    if batch.labels[0][i] != -100:
                         real_labels += 1
-                        if torch.argmax(word_logits) == batch.labels[i]:
+                        if torch.argmax(word_logits) == batch.labels[0][i]:
                             right_preds += 1
 
             loss = outputs.loss
@@ -550,9 +550,9 @@ def main():
             # count overall and right predictions for eval accuracy
             if accelerator.is_local_main_process:
                 for i, word_logits in enumerate(outputs.logits[0]):
-                    if batch.labels[i] != -100:
+                    if batch.labels[0][i] != -100:
                         real_labels += 1
-                        if torch.argmax(word_logits) == batch.labels[i]:
+                        if torch.argmax(word_logits) == batch.labels[0][i]:
                             right_preds += 1
 
             loss = outputs.loss

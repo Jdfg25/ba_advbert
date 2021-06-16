@@ -73,8 +73,8 @@ def main():
         wikipedia_train.save_to_disk('/data/wikipedia_with_typos/train')
     else:
         # dataset with one third clean and two thirds typos
-        wikipedia_valid = InsertTypos.insert_typos(wikipedia_valid, 0.01, True)
-        wikipedia_train = InsertTypos.insert_typos(wikipedia_train, 0.01, True)
+        wikipedia_valid = InsertTypos.insert_typos(wikipedia_valid, 0.001, True)
+        wikipedia_train = InsertTypos.insert_typos(wikipedia_train, 0.001, True)
 
         wikipedia_valid.save_to_disk('/data/wikipedia_with_typos_alt/validation')
         wikipedia_train.save_to_disk('/data/wikipedia_with_typos_alt/train')

@@ -68,9 +68,12 @@ def make_mistakes(choice, i, org_sample):
                              org_sample[i + 1] + \
                              org_sample[i]
             except IndexError:
-                tmp_sample = org_sample[:i - 1] + \
-                             org_sample[i] + \
-                             org_sample[i - 1]
+                try:
+                    tmp_sample = org_sample[:i - 1] + \
+                                 org_sample[i] + \
+                                 org_sample[i - 1]
+                except IndexError:
+                    tmp_sample = org_sample[:i]
     # mistype
     else:
         try:

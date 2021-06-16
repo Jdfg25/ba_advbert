@@ -17,11 +17,12 @@ def insert_typos(dataset, true_prob, exclude):
     total_samples = len(dataset)
 
     for i, sample in enumerate(dataset):
-        if exclude and i % 3 == 0:
-            continue
         print(f'Typo: {i}/{total_samples-1}')
         tmp_title.append(sample['title'])
         tmp_text.append(sample['text'])
+        if exclude and i % 3 != 0:
+            print('Skip')
+            continue
         for j, char in enumerate(sample['title']):
             if numpy.random.choice(numpy.arange(0, 2), p=[1 - true_prob, true_prob]):
                 tmp_title[i] = make_mistakes(random.randint(1, 5), j, tmp_title[i])

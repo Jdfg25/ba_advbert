@@ -19,7 +19,7 @@ def insert_typos(dataset, true_prob, exclude):
     for i, sample in enumerate(dataset):
         tmp_title.append(sample['title'])
         tmp_text.append(sample['text'])
-        if exclude and i % 3 != 0:
+        if exclude and i % 3 == 0:
             print(f'[Skip]Typo: {i}/{total_samples - 1}')
             continue
         print(f'Typo: {i}/{total_samples - 1}')

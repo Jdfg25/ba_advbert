@@ -71,13 +71,13 @@ def main():
 
         wikipedia_valid.save_to_disk('/data/wikipedia_with_typos/validation')
         wikipedia_train.save_to_disk('/data/wikipedia_with_typos/train')
-    else:
-        # dataset with one third clean and two thirds typos
+    elif args.insert_typos == 2:
+        # dataset with one third typos and two thirds clean
         wikipedia_valid = InsertTypos.insert_typos(wikipedia_valid, 0.001, True)
         wikipedia_train = InsertTypos.insert_typos(wikipedia_train, 0.001, True)
 
-        wikipedia_valid.save_to_disk('/data/wikipedia_with_typos_alt/validation')
-        wikipedia_train.save_to_disk('/data/wikipedia_with_typos_alt/train')
+        wikipedia_valid.save_to_disk('/data/wikipedia_with_typos_alt_1/validation')
+        wikipedia_train.save_to_disk('/data/wikipedia_with_typos_alt_1/train')
 
 
 if __name__ == '__main__':

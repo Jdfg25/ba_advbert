@@ -287,8 +287,8 @@ def main():
                 raw_datasets["validation"] = datasets.load_from_disk('/data/wikipedia_clean/validation')
                 raw_datasets["train"] = datasets.load_from_disk('/data/wikipedia_clean/train')
             else:
-                raw_datasets["validation"] = datasets.load_from_disk('/data/wikipedia_with_typos/validation')
-                raw_datasets["train"] = datasets.load_from_disk('/data/wikipedia_with_typos/train')
+                raw_datasets["validation"] = datasets.load_from_disk('/data/wikipedia_with_typos_alt/validation')
+                raw_datasets["train"] = datasets.load_from_disk('/data/wikipedia_with_typos_alt/train')
     else:
         data_files = {}
         if args.train_file is not None:
@@ -528,7 +528,7 @@ def main():
 
         real_labels = 0
         right_preds = 0
-        
+
         for step, batch in enumerate(eval_dataloader):
             with torch.no_grad():
                 outputs = model(**batch)

@@ -500,18 +500,9 @@ def main():
     for epoch in range(args.num_train_epochs):
         model.train()
         logger.info("New Epoch")
-        real_labels = 0
-        right_preds = 0
+
         for step, batch in enumerate(train_dataloader):
             outputs = model(**batch)
-
-            # count overall and right predictions for train accuracy
-            if accelerator.is_local_main_process:
-                for i, word_logits in enumerate(outputs.logits[0]):
-                    if batch.labels[0][i] != -100:
-                        real_labels += 1
-                        if torch.argmax(word_logits) == batch.labels[0][i]:
-                            right_preds += 1
 
             loss = outputs.loss
             loss = loss / args.gradient_accumulation_steps
@@ -531,29 +522,25 @@ def main():
             if completed_steps >= args.max_train_steps:
                 break
 
-        # compute train accuracy per epoch
-        if accelerator.is_local_main_process:
-            accuracy = 100 * right_preds / real_labels
-            with open(f'../accuracy_files/{loss_dir}/accuracy_train_per_epoch.txt', 'a') as f:
-                f.write(f'Right Predicitons {right_preds} Masked Labels {real_labels}\n')
-                f.write(f'Epoch {epoch} accuracy {accuracy}\n')
-
         model.eval()
         losses = []
         logger.info("Begin Eval")
+
         real_labels = 0
         right_preds = 0
+        
         for step, batch in enumerate(eval_dataloader):
             with torch.no_grad():
                 outputs = model(**batch)
 
             # count overall and right predictions for eval accuracy
             if accelerator.is_local_main_process:
-                for i, word_logits in enumerate(outputs.logits[0]):
-                    if batch.labels[0][i] != -100:
-                        real_labels += 1
-                        if torch.argmax(word_logits) == batch.labels[0][i]:
-                            right_preds += 1
+                for i, sent_logits in enumerate(outputs.logits):
+                    for j, word_logits in enumerate(sent_logits):
+                        if batch.labels[i][j] != -100:
+                            real_labels += 1
+                            if torch.argmax(word_logits) == batch.labels[i][j]:
+                                right_preds += 1
 
             loss = outputs.loss
             losses.append(accelerator.gather(loss.repeat(args.per_device_eval_batch_size)))

@@ -11,7 +11,6 @@ Ein Container, der die GPUs 12 bis 15 nutzt, wir mit folgendem Befehl angelegt.
 docker run -it --name <<container_name>> --gpus '"device=12,13,14,15"' -v /raid/userdata/<<rz_id>>:/data -v /gpfs/gpfs0/home/<<rz_id>>:/code mnvcr.io/nvidia/pytorch:20.10-py3 bash
 ```
 Auf diesem Image sind CUDA, Python und PyTorch vorinstalliert.  
-Alle Dateipfade sind auf diese Docker Umgebung ausgelegt und müssen für andere Arbeitsumgebungen angepasst werden.  
 Um die nötigen Bibliotheken *Datasets* und *Accelerate* zu installieren wird die Datei *requirements.txt* verwendet.
 ```
 pip install -r requirements.txt
@@ -43,6 +42,8 @@ accelerate test
 
 ## Skripte
 
+Alle Dateipfade sind auf die Docker bzw. Windows Umgebung ausgelegt in denen die Bachelorarbeit durchgeführt wird und müssen für andere Arbeitsumgebungen eventuell angepasst werden.
+
 ### GenerateDataset.py
 Das Skript steuert das Laden des Datensatzes und den Aufruf der weiteren Funktionen.  
 Falls der Datensatz noch nicht lokal gespeichert ist wird er aus dem Netz geladen. Danach wird die Funktion *clean_dataset()* aus CleanDataset.py aufgerufen. 
@@ -66,7 +67,9 @@ Gesteuert durch das Argument *exclude* wird entweder jeder Artikel mit Fehlern d
 
 ### mod_run_mlm_no_trainer.py
 Dieses Skript basiert auf [run_mlm_no_trainer.py][3] aus der [HuggingFace Transformers][4] Bibliothek, welches das Training eines Transformers mithilfe von Masked Language Modelling realisiert.  
-Bei Aufruf können verschiedene Argumente übergeben werden, um den Trainingsbalauf zu konfigurieren.  
+*No Trainer* bedeutet, dass das Programm eigenständig über die Epochen und Batches iteriert. Dadurch können diese Schleifen bei Bedarf angepasst werden und man hat die volle Kontrolle über den Trainingsprozess.  
+Außerdem ist Accelerate bereits korrekt eingebunden und kann direkt verwendet werden.  
+Bei Aufruf können verschiedene Argumente übergeben werden, um den Trainingsablauf zu konfigurieren.    
 
 | Argument | Beschreibung |
 --- | ---
@@ -75,14 +78,15 @@ Bei Aufruf können verschiedene Argumente übergeben werden, um den Trainingsbal
 | model_name_or_path | Der Name des Modells aus der HuggingFace Bibliothek |
 | output_dir | Der Pfad in dem das trainierte Modell gespeichert werden soll |
 
-Nachfolgend sind die zusätzlichen Funktionen der modifizierten Version gegenüber dem Original beschrieben.  
-Mit *insert_typos* wird entweder der bereinigte oder der fehlerbehaftete Datensatz geladen, welcher mit GenerateDataset.py erstellt wurde. Ist nichts anderes angegeben wird durch dieses Argument auch der Pfad festgelegt in dem das trainierte Modell gespeichert wird.  
-*train_pretrained* legt fest, ob nur die rohe Konfiguration des Modells als Basis genutzt wird, d.h. von Grund auf neu trainiert wird oder ob auch die vortrainierten Gewichte geladen werden. Wird ein lokales Modell geladen muss im Argument *tokenizer_name* zusätzlich angegeben werden, welcher Tokenizer genutzt werden soll.  
-Zudem werden die Metriken Loss und Accuracy von Training und Evaluation in eine Textdatei gespeichert. Mithilfe von PlotLoss.py kann er als Graph dargestellt und gespeichert werden.
+Besitzt die Grafikkarte nicht ausreichend V-RAM empfiehlt es sich, die Argumente \textit{per\_device\_train\_batch\_size} und \textit{per\_device\_eval\_batch\_size} auf niedrigere Werte zu setzen (Standardwert: 8). Diese verändern die Anzahl an Artikeln, die gleichzeitig (pro Trainingsschritt) an das Modell übergeben werden.  
+Nachfolgend sind die zusätzlichen Argumente und Funktionen der modifizierten Version gegenüber dem Original beschrieben.  
+Mit *insert_typos* wird entweder der bereinigte oder der fehlerbehaftete Datensatz geladen, welcher mit GenerateDataset.py erstellt wurde. Ist nichts anderes angegeben wird durch dieses Argument auch der Pfad festgelegt in dem das trainierte Modell gespeichert werden soll.  
+*train_pretrained* legt fest, ob nur die rohe Konfiguration des Modells als Basis genutzt wird, d.h. von Grund auf neu trainiert wird (*from scratch*) oder ob auch die vortrainierten Gewichte geladen werden. Wird ein lokales Modell geladen muss im Argument *tokenizer_name* zusätzlich angegeben werden, welcher Tokenizer genutzt werden soll.  
+Zudem werden die Metriken Loss von Training und Evaluation bzw. Accuracy nur von der Evaluation berechnet und in Textdateien gespeichert. Mithilfe von PlotLoss.py und PlotAccuracy.py können sie als Graph dargestellt und gespeichert werden.
 
 Ein beispielhafter Aufruf sieht folgendermaßen aus:
 ```
-python mod_run_mlm_no_trainer.py \
+accelerate launch mod_run_mlm_no_trainer.py \
 --dataset_name wikipedia \
 --dataset_config_name 20200501.de \
 --dataset_dir /data \
@@ -92,9 +96,9 @@ python mod_run_mlm_no_trainer.py \
 ```
 
 ### Evaluate.py
-Um die Leistungsfähigkeit des trainierten Modells zu beurteilen muss es das fehlende Wort in 10 verschiedenen Sätzen bestimmen.  
-Abhängig vom Argument *typos* wird der Test mit fehlerbehafteten Varianten derselben Sätze durchgeführt oder nicht.  
-Als Ausgabe erhält man für jeden Satz die 5 wahrscheinlichsten Wörter mitsamt ihrer Scores.
+Mithilfe von *Pipelines*, welche in der *Transformers* Bibliothek enthalten sind, können Modelle direkt auf diverse NLP Aufgaben getestet werden. Modell und Tokenizer werden geladen und der Pipeline übergeben.  
+Es muss das fehlende Wort in 7 verschiedenen Sätzen bestimmt werden. Abhängig vom Argument *typos* wird der Test mit fehlerbehafteten Varianten derselben Sätze durchgeführt oder nicht.  
+Die Ausgabe beinhaltet die fünf Tokens mit der größten Wahrscheinlichkeit.
 
 
 [1]: https://www.unibw.de/etti

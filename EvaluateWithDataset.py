@@ -132,13 +132,13 @@ def main():
             f.write(f'Batch {step} loss {loss}\n')
 
     accuracy = 100 * right_preds / real_labels
-    with open(args.model_path + f'/accuracy{metric_dir}.txt', 'a') as f:
+    with open(args.model_path + f'/accuracy_{metric_dir}.txt', 'a') as f:
         f.write(f'Right Predicitons {right_preds} Masked Labels {real_labels}\n')
         f.write(f'accuracy {accuracy}\n')
     print(f'accuracy {accuracy}\n')
 
     with open(args.model_path + f'/loss_{metric_dir}.txt', 'a') as f:
-        f.write(f'overall loss {losses}\n')
+        f.write(f'overall loss {losses / len(eval_dataloader)}\n')
     print(f'loss {losses}\n')
 
 

@@ -49,6 +49,7 @@ def main():
         )
 
     if args.typos:
+        print('Using the dataset with typos')
         raw_datasets['train'] = datasets.load_from_disk('/data/gnad10_with_typos')
 
     tokenizer = AutoTokenizer.from_pretrained(

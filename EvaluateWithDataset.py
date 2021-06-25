@@ -33,15 +33,20 @@ def main():
     args = parse_args()
 
     if args.model_path is None:
-        args.model_path = r'E:\Uni\9. Trimester (Bachelorarbeit)\Dateien vom Monacum One\typosfine_50_custom\model'
+        args.model_path = 'bert-base-german-dbmdz-uncased'
 
     raw_datasets = load_dataset(
         path='gnad10',
         split='train[:50]'
     )
 
-    tokenizer = AutoTokenizer.from_pretrained('bert-base-german-dbmdz-uncased')
+    tokenizer = AutoTokenizer.from_pretrained(
+        'bert-base-german-dbmdz-uncased' if args.model_path is None else args.model_path
+    )
     model = AutoModelForMaskedLM.from_pretrained(args.model_path)
+
+    if args.model_path == 'bert-base-german-dbmdz-uncased':
+        args.model_path = '/model/' + args.model_path
 
     model.resize_token_embeddings(len(tokenizer))
 

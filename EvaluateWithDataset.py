@@ -37,7 +37,6 @@ def main():
 
     raw_datasets = load_dataset(
         path='gnad10',
-        split='train[:50]'
     )
 
     tokenizer = AutoTokenizer.from_pretrained(
@@ -50,7 +49,7 @@ def main():
 
     model.resize_token_embeddings(len(tokenizer))
 
-    column_names = raw_datasets.column_names
+    column_names = raw_datasets['train'].column_names
     text_column_name = "text" if "text" in column_names else column_names[0]
 
     max_seq_length = tokenizer.model_max_length
@@ -88,7 +87,7 @@ def main():
         batched=True,
     )
 
-    eval_dataset = tokenized_datasets
+    eval_dataset = tokenized_datasets['train']
 
     data_collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm_probability=0.15)
 

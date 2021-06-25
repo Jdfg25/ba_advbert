@@ -25,6 +25,12 @@ def parse_args():
         default=8,
     )
 
+    parser.add_argument(
+        "--typos",
+        type=bool,
+        default=False,
+    )
+
     args = parser.parse_args()
     return args
 
@@ -35,9 +41,14 @@ def main():
     if args.model_path is None:
         args.model_path = 'bert-base-german-dbmdz-uncased'
 
-    raw_datasets = load_dataset(
-        path='gnad10',
-    )
+    if not args.typos:
+        raw_datasets = load_dataset(
+            path='gnad10',
+            split='train',
+            cache_dir='/data',
+        )
+    else:
+        raw_datasets = load_dataset('/data/gand10_with_typos')
 
     tokenizer = AutoTokenizer.from_pretrained(
         'bert-base-german-dbmdz-uncased' if args.model_path is None else args.model_path
@@ -96,9 +107,12 @@ def main():
     model.eval()
     real_labels = 0
     right_preds = 0
+    losses = 0
+
+    metric_dir = 'typos' if args.typos else 'no_typos'
 
     for step, batch in enumerate(eval_dataloader):
-        print(f'Batch {step}/{len(eval_dataloader)}')
+        print(f'Batch {step}/{len(eval_dataloader) - 1}')
         with torch.no_grad():
             outputs = model(**batch)
 
@@ -110,15 +124,20 @@ def main():
                         right_preds += 1
 
         loss = outputs.loss
+        losses += loss
 
-        with open(args.model_path + '/losses_eval.txt', 'a') as f:
+        with open(args.model_path + f'/loss_{metric_dir}.txt', 'a') as f:
             f.write(f'Batch {step} loss {loss}\n')
 
     accuracy = 100 * right_preds / real_labels
-    with open(args.model_path + '/accuracy.txt', 'a') as f:
+    with open(args.model_path + f'/accuracy{metric_dir}.txt', 'a') as f:
         f.write(f'Right Predicitons {right_preds} Masked Labels {real_labels}\n')
         f.write(f'accuracy {accuracy}\n')
     print(f'accuracy {accuracy}\n')
+
+    with open(args.model_path + f'/loss_{metric_dir}.txt', 'a') as f:
+        f.write(f'overall loss {losses}\n')
+    print(f'loss {losses}\n')
 
 
 if __name__ == "__main__":

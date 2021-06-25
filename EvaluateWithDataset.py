@@ -119,6 +119,7 @@ def main():
     with open(args.model_path + '/accuracy.txt', 'a') as f:
         f.write(f'Right Predicitons {right_preds} Masked Labels {real_labels}\n')
         f.write(f'accuracy {accuracy}\n')
+    print(f'accuracy {accuracy}\n')
 
 
 if __name__ == "__main__":

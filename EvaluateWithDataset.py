@@ -47,9 +47,9 @@ def main():
         path='gnad10',
         cache_dir='/data',
         )
-    
+
     if args.typos:
-        raw_datasets['train'] = datasets.load_from_disk('/data/gand10_with_typos')
+        raw_datasets['train'] = datasets.load_from_disk('/data/gnad10_with_typos')
 
     tokenizer = AutoTokenizer.from_pretrained(
         'bert-base-german-dbmdz-uncased' if args.model_path is None else args.model_path

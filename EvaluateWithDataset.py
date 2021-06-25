@@ -98,7 +98,7 @@ def main():
     right_preds = 0
 
     for step, batch in enumerate(eval_dataloader):
-        print(f'Batch {step}')
+        print(f'Batch {step}/{len(eval_dataloader)}')
         with torch.no_grad():
             outputs = model(**batch)
 

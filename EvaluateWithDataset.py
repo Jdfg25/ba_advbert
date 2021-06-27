@@ -138,7 +138,7 @@ def main():
 
     with open(args.model_path + f'/loss_{metric_dir}.txt', 'a') as f:
         f.write(f'overall loss {losses / len(eval_dataloader)}\n')
-    print(f'loss {losses}\n')
+    print(f'loss {losses / len(eval_dataloader)}\n')
 
 
 if __name__ == "__main__":

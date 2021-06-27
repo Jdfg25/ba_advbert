@@ -52,9 +52,8 @@ def main():
         print('Using the dataset with typos')
         raw_datasets['train'] = datasets.load_from_disk('/data/gnad10_with_typos')
 
-    tokenizer = AutoTokenizer.from_pretrained(
-        'bert-base-german-dbmdz-uncased' if args.model_path is None else args.model_path
-    )
+    tokenizer = AutoTokenizer.from_pretrained('bert-base-german-dbmdz-uncased')
+
     model = AutoModelForMaskedLM.from_pretrained(args.model_path)
 
     if args.model_path == 'bert-base-german-dbmdz-uncased':

@@ -112,8 +112,9 @@ def main():
 
     metric_dir = 'typos' if args.typos else 'no_typos'
 
+    print('Start evaluation')
+
     for step, batch in enumerate(eval_dataloader):
-        print(f'Batch {step}/{len(eval_dataloader) - 1}')
         with torch.no_grad():
             outputs = model(**batch)
 
@@ -129,6 +130,8 @@ def main():
 
         with open(args.model_path + f'/loss_{metric_dir}.txt', 'a') as f:
             f.write(f'Batch {step} loss {loss}\n')
+
+        print(f'Batch {step}/{len(eval_dataloader) - 1}')
 
     accuracy = 100 * right_preds / real_labels
     with open(args.model_path + f'/accuracy_{metric_dir}.txt', 'a') as f:

@@ -65,6 +65,9 @@ Mit der aus GenerateDataset.py übergebenen Wahrscheinlichkeit *true_prob* werde
 Diese basieren auf dem Paper [*Adv-BERT*][6] und bestehen aus dem Einfügen, Löschen und Austauschen eines Zeichens, sowie dem Vertauschen zweier Zeichen.  
 Gesteuert durch das Argument *exclude* wird entweder jeder Artikel mit Fehlern durchsetzt oder nur zwei Drittel. In letzterem Fall werden die restlichen Daten nicht modifiziert.
 
+### InsertTyposGnad10.py
+Diese abgewandelte Variante von InsertTypos dient dem Einfügen von Rechtschreibfehlern in den Datensatz [Gnad10][7], welcher im Sktipt EvaluateWithDataset.py verwendet wird.
+
 ### mod_run_mlm_no_trainer.py
 Dieses Skript basiert auf [run_mlm_no_trainer.py][3] aus der [HuggingFace Transformers][4] Bibliothek, welches das Training eines Transformers mithilfe von Masked Language Modelling realisiert.  
 *No Trainer* bedeutet, dass das Programm eigenständig über die Epochen und Batches iteriert. Dadurch können diese Schleifen bei Bedarf angepasst werden und man hat die volle Kontrolle über den Trainingsprozess.  
@@ -100,6 +103,13 @@ Mithilfe von *Pipelines*, welche in der *Transformers* Bibliothek enthalten sind
 Es muss das fehlende Wort in 7 verschiedenen Sätzen bestimmt werden. Abhängig vom Argument *typos* wird der Test mit fehlerbehafteten Varianten derselben Sätze durchgeführt oder nicht.  
 Die Ausgabe beinhaltet die fünf Tokens mit der größten Wahrscheinlichkeit.
 
+### EvaluateWithDataset.py
+
+Die Evaluation aus run_mlm_no_trainer.py wird in leicht veränderter Form verwendet, um ein Modell auf den Datensatz [gnad10][7] zu evaluieren.  
+Mit dem Argument *model_path* wird der Pfad festgelegt, in welchem sich das Modell befindet. Wird nichts angegeben verwendet das Skript standardmäßig das originale [*bert-base-german-uncased*][5] Modell verwendet.  
+*eval_batch_size* legt fest, wie viele Artikel gleichzeitig verarbeitet werden.  
+Von *typos* hängt ab, ob mit dem fehlerfreien oder fehlerbehafteten Datensatz evaluiert wird.
+
 
 [1]: https://www.unibw.de/etti
 [2]: https://huggingface.co/datasets/wikipedia#20200501de
@@ -107,3 +117,4 @@ Die Ausgabe beinhaltet die fünf Tokens mit der größten Wahrscheinlichkeit.
 [4]: https://huggingface.co/transformers/
 [5]: https://huggingface.co/dbmdz/bert-base-german-uncased
 [6]: https://arxiv.org/abs/2003.04985
+[7]: https://huggingface.co/datasets/gnad10

@@ -58,12 +58,12 @@ python GenerateDataset.py \
 ```
 
 ### CleanDataset.py
-Die Artikel im Datensatz werden nach den Kapiteln *Weblinks* und *Literatur* durchsucht und selbige werden entfernt um das Pre-Training zu optimieren.
+Die Artikel im Datensatz werden nach den Kapiteln *Weblinks* und *Literatur* durchsucht und selbige werden entfernt, um das Pre-Training zu optimieren.
 
 ### InsertTypos.py
 Mit der aus GenerateDataset.py übergebenen Wahrscheinlichkeit *true_prob* werden in den einzelnen Zeichen der Strings Rechtschreibfehler eingefügt. 
 Diese basieren auf dem Paper [*Adv-BERT*][6] und bestehen aus dem Einfügen, Löschen und Austauschen eines Zeichens, sowie dem Vertauschen zweier Zeichen.  
-Gesteuert durch das Argument *exclude* wird entweder jeder Artikel mit Fehlern durchsetzt oder nur zwei Drittel. In letzterem Fall werden die restlichen Daten nicht modifiziert.
+Gesteuert durch das Argument *exclude* wird entweder jeder Artikel mit Fehlern durchsetzt oder nur ein Teil, in diesem Fall zwei Drittel. Die restlichen Daten werden dann nicht modifiziert.
 
 ### InsertTyposGnad10.py
 Diese abgewandelte Variante von InsertTypos dient dem Einfügen von Rechtschreibfehlern in den Datensatz [Gnad10][7], welcher im Sktipt EvaluateWithDataset.py verwendet wird.
@@ -78,14 +78,13 @@ Bei Aufruf können verschiedene Argumente übergeben werden, um den Trainingsabl
 --- | ---
 | dataset_name | Der Name des Datensatzes aus der HuggingFace Bibliothek |
 | dataset_config_name | Der Name der Konfiguration des Datensatzes |
-| model_name_or_path | Der Name des Modells aus der HuggingFace Bibliothek |
+| model_name_or_path | Der Name des Modells aus der HuggingFace Bibliothek oder der Pfad zum lokal gespeicherten Modell |
 | output_dir | Der Pfad in dem das trainierte Modell gespeichert werden soll |
 
-Besitzt die Grafikkarte nicht ausreichend V-RAM empfiehlt es sich, die Argumente \textit{per\_device\_train\_batch\_size} und \textit{per\_device\_eval\_batch\_size} auf niedrigere Werte zu setzen (Standardwert: 8). Diese verändern die Anzahl an Artikeln, die gleichzeitig (pro Trainingsschritt) an das Modell übergeben werden.  
+Besitzt die Grafikkarte nicht ausreichend V-RAM empfiehlt es sich, die Argumente *per_device_train_batch_size* und *per_device_eval_batch_size* auf niedrigere Werte zu setzen (Standardwert: 8). Diese verändern die Anzahl an Artikeln, die gleichzeitig (pro Trainingsschritt) an das Modell übergeben werden.  
 Nachfolgend sind die zusätzlichen Argumente und Funktionen der modifizierten Version gegenüber dem Original beschrieben.  
 Mit *insert_typos* wird entweder der bereinigte oder der fehlerbehaftete Datensatz geladen, welcher mit GenerateDataset.py erstellt wurde. Ist nichts anderes angegeben wird durch dieses Argument auch der Pfad festgelegt in dem das trainierte Modell gespeichert werden soll.  
 *train_pretrained* legt fest, ob nur die rohe Konfiguration des Modells als Basis genutzt wird, d.h. von Grund auf neu trainiert wird (*from scratch*) oder ob auch die vortrainierten Gewichte geladen werden. Wird ein lokales Modell geladen muss im Argument *tokenizer_name* zusätzlich angegeben werden, welcher Tokenizer genutzt werden soll.  
-Zudem werden die Metriken Loss von Training und Evaluation bzw. Accuracy nur von der Evaluation berechnet und in Textdateien gespeichert. Mithilfe von PlotLoss.py und PlotAccuracy.py können sie als Graph dargestellt und gespeichert werden.
 
 Ein beispielhafter Aufruf sieht folgendermaßen aus:
 ```
@@ -98,15 +97,17 @@ accelerate launch mod_run_mlm_no_trainer.py \
 --train_pretrained True
 ```
 
+Zudem werden die Metriken Loss von Training und Evaluation bzw. Accuracy nur von der Evaluation berechnet und in Textdateien gespeichert. Mithilfe von PlotLoss.py und PlotAccuracy.py können sie als Graph dargestellt und gespeichert werden.
+
 ### Evaluate.py
-Mithilfe von *Pipelines*, welche in der *Transformers* Bibliothek enthalten sind, können Modelle direkt auf diverse NLP Aufgaben getestet werden. Modell und Tokenizer werden geladen und der Pipeline übergeben.  
-Es muss das fehlende Wort in 7 verschiedenen Sätzen bestimmt werden. Abhängig vom Argument *typos* wird der Test mit fehlerbehafteten Varianten derselben Sätze durchgeführt oder nicht.  
+Mithilfe von *Pipelines*, welche in der *Transformers* Bibliothek enthalten sind, können Modelle direkt auf diverse NLP Aufgaben getestet werden. Mit *model_name_or_path* wird der Pfad, in dem das Modell liegt, angegeben. Wird nichts angegeben verwendet das Skript das originale *bert-base-german-uncased* Modell.   
+Es muss das fehlende Wort in 7 verschiedenen Sätzen bestimmt werden. Abhängig vom Argument *typos* wird der Test mit fehlerfreien oder fehlerbehafteten Varianten dieser Sätze durchgeführt.    
 Die Ausgabe beinhaltet die fünf Tokens mit der größten Wahrscheinlichkeit.
 
 ### EvaluateWithDataset.py
 
-Die Evaluation aus run_mlm_no_trainer.py wird in leicht veränderter Form verwendet, um ein Modell auf den Datensatz [gnad10][7] zu evaluieren.  
-Mit dem Argument *model_path* wird der Pfad festgelegt, in welchem sich das Modell befindet. Wird nichts angegeben verwendet das Skript standardmäßig das originale [*bert-base-german-uncased*][5] Modell verwendet.  
+Die Evaluation aus run_mlm_no_trainer.py wird in leicht veränderter Form verwendet, um ein Modell auf den Datensatz [Gnad10][7] zu evaluieren.  
+Mit dem Argument *model_path* wird der Pfad festgelegt, in welchem sich das Modell befindet. Standardmäßig wird *bert-base-german-uncased* verwendet.   
 *eval_batch_size* legt fest, wie viele Artikel gleichzeitig verarbeitet werden.  
 Von *typos* hängt ab, ob mit dem fehlerfreien oder fehlerbehafteten Datensatz evaluiert wird.
 

@@ -76,8 +76,8 @@ def main():
         wikipedia_valid = InsertTypos.insert_typos(wikipedia_valid, 0.025, True)
         wikipedia_train = InsertTypos.insert_typos(wikipedia_train, 0.025, True)
 
-        wikipedia_valid.save_to_disk('/data/wikipedia_with_typos_alt_2/validation')
-        wikipedia_train.save_to_disk('/data/wikipedia_with_typos_alt_2/train')
+        wikipedia_valid.save_to_disk('/data/wikipedia_with_typos_alt/validation')
+        wikipedia_train.save_to_disk('/data/wikipedia_with_typos_alt/train')
 
 
 if __name__ == '__main__':

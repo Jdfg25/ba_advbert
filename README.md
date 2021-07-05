@@ -1,6 +1,6 @@
 # Bewertung des Einflusses von Rechtschreibfehlern auf ein deutsches BERT-Sprachmodell
 
-Dieses Repository ist Teil einer Bachelorarbeit mit dem oben genannten Titel am Institut 2 der [Fakultät ETTI][1] der Universität der Bundeswehr München.  
+Dieser Code ist Teil einer Bachelorarbeit mit dem oben genannten Titel am Institut 2 der [Fakultät ETTI][1] der Universität der Bundeswehr München.  
 Hierbei soll mithilfe des Modells [*bert-base-geman-uncased*][5] und des Datensatzes [Wikipedia in der Konfiguration 20200501.de][2] untersucht werden, inwiefern BERT durch das Training auf einen fehlerbehafteten Datensatz robust gegenüber dem Einfluss von Rechtschreibfehlern gemacht werden kann.
 
 ## Einrichtung
@@ -11,7 +11,7 @@ Ein Container, der die GPUs 12 bis 15 nutzt, wir mit folgendem Befehl angelegt.
 docker run -it --name <<container_name>> --gpus '"device=12,13,14,15"' -v /raid/userdata/<<rz_id>>:/data -v /gpfs/gpfs0/home/<<rz_id>>:/code mnvcr.io/nvidia/pytorch:20.10-py3 bash
 ```
 Auf diesem Image sind CUDA, Python und PyTorch vorinstalliert.  
-Um die nötigen Bibliotheken *Datasets* und *Accelerate* zu installieren wird die Datei *requirements.txt* verwendet.
+Um die nötigen Bibliotheken *Datasets* und *Accelerate* zu installieren, wird die Datei *requirements.txt* verwendet.
 ```
 pip install -r requirements.txt
 ```
@@ -27,7 +27,7 @@ Um *Accelerate* nutzen zu können muss die Bibliothek konfiguriert werden.
 ```
 accelerate config
 ```
-Es folgen einige Fragen.
+Es folgen einige Fragen. Die Anzahl der Prozesse ist equivalent zur Anzahl der GPUs.
 ```
 In which compute environment are you running? ([0] This machine, [1] AWS (Amazon SageMaker)): 0  
 Which type of machine are you using? ([0] No distributed training, [1] multi-GPU, [2] TPU): 1
@@ -35,21 +35,22 @@ How many different machines will you use (use more than 1 for multi-node trainin
 How many processes in total will you use? [1]: 4
 Do you wish to use FP16 (mixed precision)? [yes/NO]:
 ```
-Schließlich kann getestet werden ob alles korrekt läuft. Dies funktioniert allerdings nur bei 2, 4 und 8 GPUs.
+Schließlich kann getestet werden, ob alles korrekt läuft. Dies funktioniert allerdings nur bei 2, 4 oder 8 Prozessen. Bei einer Zahl von beispielsweise 12 oder 16 wird ein Fehler geworfen, obwohl die Ausführung anderer Skripte funktioniert.
 ```
 accelerate test
 ```
 
 ## Skripte
 
-Alle Dateipfade sind auf die Docker bzw. Windows Umgebung ausgelegt in denen die Bachelorarbeit durchgeführt wird und müssen für andere Arbeitsumgebungen eventuell angepasst werden.
+Dateipfade sind auf die Docker bzw. Windows Umgebung ausgelegt, in denen die Bachelorarbeit durchgeführt wurde und müssen für andere Arbeitsumgebungen eventuell angepasst werden.  
+Wird es nicht anders beschrieben, so ist der Standardwert bei boolschen Argumenten immer False.
 
 ### GenerateDataset.py
 Das Skript steuert das Laden des Datensatzes und den Aufruf der weiteren Funktionen.  
-Falls der Datensatz noch nicht lokal gespeichert ist wird er aus dem Netz geladen. Danach wird die Funktion *clean_dataset()* aus CleanDataset.py aufgerufen. 
+Falls der Datensatz noch nicht lokal gespeichert ist, wird er aus dem Netz geladen. Danach wird die Funktion *clean_dataset()* aus CleanDataset.py aufgerufen.  
 Optional wird zusätzlich, gesteuert durch das Argument *insert_typos*, die Funktion *insert_typos()* aus InsertTypos.py aufgerufen.  
 Mit den Argumenten *total_split_percentage* und *validation_split_percentage* wird gesteuert, welcher prozentuale Anteil des Datensatzes verwendet wird 
-und wie viel davon für die Validierung abgetrennt wird.  
+und welcher Teil davon für die Validierung abgetrennt wird.  
 Ein Aufruf für 80% der Daten und das Einfügen von Rechtschreibfehlern sieht folgendermaßen aus:  
 ```
 python GenerateDataset.py \ 
@@ -66,7 +67,7 @@ Diese basieren auf dem Paper [*Adv-BERT*][6] und bestehen aus dem Einfügen, Lö
 Gesteuert durch das Argument *exclude* wird entweder jeder Artikel mit Fehlern durchsetzt oder nur ein Teil, in diesem Fall zwei Drittel. Die restlichen Daten werden dann nicht modifiziert.
 
 ### InsertTyposGnad10.py
-Diese abgewandelte Variante von InsertTypos dient dem Einfügen von Rechtschreibfehlern in den Datensatz [Gnad10][7], welcher im Sktipt EvaluateWithDataset.py verwendet wird.
+Diese abgewandelte Variante von InsertTypos dient dem Einfügen von Rechtschreibfehlern in den Datensatz [Gnad10][7], welcher im Skript EvaluateWithDataset.py verwendet wird.
 
 ### mod_run_mlm_no_trainer.py
 Dieses Skript basiert auf [run_mlm_no_trainer.py][3] aus der [HuggingFace Transformers][4] Bibliothek, welches das Training eines Transformers mithilfe von Masked Language Modelling realisiert.  
@@ -91,16 +92,21 @@ Ein beispielhafter Aufruf sieht folgendermaßen aus:
 accelerate launch mod_run_mlm_no_trainer.py \
 --dataset_name wikipedia \
 --dataset_config_name 20200501.de \
---dataset_dir /data \
 --model_name_or_path /model/bert-base-german-no-typos \
 --tokenizer_name bert-base-german-dbmdz-uncased \
 --train_pretrained True
 ```
 
-Zudem werden die Metriken Loss von Training und Evaluation bzw. Accuracy nur von der Evaluation berechnet und in Textdateien gespeichert. Mithilfe von PlotLoss.py und PlotAccuracy.py können sie als Graph dargestellt und gespeichert werden.
+Zudem werden die Metriken Loss von Training und Evaluation bzw. Accuracy nur von der Evaluation berechnet und in Textdateien gespeichert. 
+
+### PlotLoss.py & PlotAccuracy.py
+
+Mithilfe von PlotLoss.py und PlotAccuracy.py können die berechenten Metriken als Graph dargestellt und gespeichert werden.  
+Mit dem Argument *path* wird angegeben, wo die jeweilige Datei mit den Werten liegt. In diesen Ordner wird auch der Graph gespeichert.
+In PlotLoss.py wird mit *eval* angegeben, ob der Loss der Evaluation ausgegeben werden soll (True), sonst wird der Loss des Trainings verarbeitet.
 
 ### Evaluate.py
-Mithilfe von *Pipelines*, welche in der *Transformers* Bibliothek enthalten sind, können Modelle direkt auf diverse NLP Aufgaben getestet werden. Mit *model_name_or_path* wird der Pfad, in dem das Modell liegt, angegeben. Wird nichts angegeben verwendet das Skript das originale *bert-base-german-uncased* Modell.   
+Mithilfe von *Pipelines*, welche in der *Transformers* Bibliothek enthalten sind, können Modelle direkt auf diverse NLP Aufgaben getestet werden. Mit *model_name_or_path* wird der Pfad, in dem das Modell liegt, angegeben. Wird nichts angegeben, verwendet das Skript das originale *bert-base-german-uncased* Modell.   
 Es muss das fehlende Wort in 7 verschiedenen Sätzen bestimmt werden. Abhängig vom Argument *typos* wird der Test mit fehlerfreien oder fehlerbehafteten Varianten dieser Sätze durchgeführt.    
 Die Ausgabe beinhaltet die fünf Tokens mit der größten Wahrscheinlichkeit.
 

@@ -190,7 +190,7 @@ def parse_args():
     parser.add_argument(
         "--dataset_dir",
         type=str,
-        default="/Users/Jdfg/.cache/huggingface/datasets" if platform.system() == 'Windows' else "~/datasets",
+        default='/data',
         help="Location of a custom arrow dataset",
     )
 
@@ -287,8 +287,8 @@ def main():
                 raw_datasets["validation"] = datasets.load_from_disk('/data/wikipedia_clean/validation')
                 raw_datasets["train"] = datasets.load_from_disk('/data/wikipedia_clean/train')
             else:
-                raw_datasets["validation"] = datasets.load_from_disk('/data/wikipedia_with_typos_alt_1/validation')
-                raw_datasets["train"] = datasets.load_from_disk('/data/wikipedia_with_typos_alt_1/train')
+                raw_datasets["validation"] = datasets.load_from_disk('/data/wikipedia_with_typos_alt/validation')
+                raw_datasets["train"] = datasets.load_from_disk('/data/wikipedia_with_typos_alt/train')
     else:
         data_files = {}
         if args.train_file is not None:

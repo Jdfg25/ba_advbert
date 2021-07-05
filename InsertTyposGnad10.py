@@ -36,19 +36,19 @@ def insert_typos(dataset, true_prob):
 
 
 def make_mistakes(choice, i, org_sample):
-    # insert
+    # einfügen
     if choice == 1:
         tmp_sample = org_sample[:i] + \
                      characters[random.randint(0, len(characters) - 1)] + \
                      org_sample[i:]
-    # delete
+    # löschen
     elif choice == 2:
         try:
             tmp_sample = org_sample[:i] + \
                          org_sample[i + 1:]
         except IndexError:
             tmp_sample = org_sample[:i]
-    # swap
+    # vertauschen
     elif choice == 3:
         try:
             tmp_sample = org_sample[:i] + \
@@ -67,7 +67,7 @@ def make_mistakes(choice, i, org_sample):
                                  org_sample[i - 1]
                 except IndexError:
                     tmp_sample = org_sample[:i]
-    # mistype
+    # austauschen
     else:
         try:
             tmp_sample = org_sample[:i] + \
@@ -83,7 +83,8 @@ def make_mistakes(choice, i, org_sample):
 if __name__ == '__main__':
     gnad = load_dataset(
         path='gnad10',
-        split='train'
+        split='train',
+        cache_dir='/data'
     )
 
     new_gnad = insert_typos(gnad, 0.01)
